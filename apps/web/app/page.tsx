@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export default function HomePage() {
   // 모의 데이터 (인프라 현황)
@@ -144,12 +145,13 @@ export default function HomePage() {
             </div>
 
             <div className="pt-6 border-t border-white/5">
-              <button
+              <Link
+                href="/worker/map"
                 id="btn-analysis"
-                className="w-full py-3 bg-gradient-to-r from-sky-500 to-purple-600 rounded-xl font-semibold text-sm transition-all duration-300 hover:opacity-90 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98]"
+                className="block text-center w-full py-3 bg-gradient-to-r from-sky-500 to-purple-600 rounded-xl font-semibold text-sm transition-all duration-300 hover:opacity-90 hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98]"
               >
-                인프라 최적 경로 분석 시작
-              </button>
+                인프라 실시간 지도 & 경로 분석 시작
+              </Link>
             </div>
           </section>
         </div>
