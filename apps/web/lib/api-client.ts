@@ -132,10 +132,11 @@ export async function getRecommendations(
 ): Promise<RecommendationResponse[]> {
   // Supabase 세션에서 현재 로그인한 유저 ID 획득
   const { data: { session } } = await supabase.auth.getSession();
-  const userId = session?.user?.id;
+  let userId = session?.user?.id;
   
   if (!userId) {
-    throw new Error("인증 세션을 찾을 수 없습니다. 로그인 후 다시 시도하십시오.");
+    console.warn("인증 세션이 없습니다. 데모용 모의 사용자 ID(IT-WORKER-01)를 사용합니다.");
+    userId = "a2222222-2222-2222-2222-222222222222";
   }
 
   return apiClient.post("/api/v1/recommendations", {

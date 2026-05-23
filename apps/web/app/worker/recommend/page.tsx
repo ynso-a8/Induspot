@@ -150,8 +150,8 @@ function RecommendContent() {
   const [toast, setToast] = useState<string | null>(null);
 
   // Coordinates used for recommendations
-  const [lat, setLat] = useState<number>(37.3980);
-  const [lng, setLng] = useState<number>(126.9600);
+  const [lat, setLat] = useState<number>(36.1198);
+  const [lng, setLng] = useState<number>(128.3471);
 
   // Load User ID and Kakao Maps SDK
   useEffect(() => {
@@ -159,6 +159,9 @@ function RecommendContent() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUserId(session.user.id);
+      } else {
+        console.warn("No active session found, falling back to mock user IT-WORKER-01.");
+        setUserId("a2222222-2222-2222-2222-222222222222"); // Fallback mock worker ID from seeds
       }
     });
 
@@ -197,101 +200,90 @@ function RecommendContent() {
           setLng(pos.coords.longitude);
         },
         (err) => {
-          console.warn("Geolocation fallback failed, using default Anyang center.", err);
+          console.warn("Geolocation fallback failed, using default Gumi center.", err);
         }
       );
     }
   }, [paramLat, paramLng]);
 
-  // Fallback Mock Seed Data for Resilient Local Demos
+  // Fallback Mock Seed Data for Resilient Local Demos (Gumi Complex)
   const MOCK_SEED_FACILITIES = [
     {
-      id: "f1000000-0000-0000-0000-000000000001",
-      name: "푸드스퀘어 한식관",
+      id: "64e1e4ba-6502-4c0c-bb91-f3527222861f",
+      name: "구미산단 한솥도시락 본점",
       type: "cafeteria",
-      latitude: 37.3185,
-      longitude: 126.8115,
-      capacity: 150,
-      operating_hours: { weekday: "11:00-20:00", weekend: "11:00-14:00" },
-      features: { has_vegetarian: true, average_price: 7500, average_processing_time: 20 },
-      congestion_logs: [{ congestion_level: 0.85, current_count: 127, timestamp: new Date().toISOString() }]
-    },
-    {
-      id: "f1000000-0000-0000-0000-000000000002",
-      name: "Indu 뷔페 식당",
-      type: "cafeteria",
-      latitude: 37.3202,
-      longitude: 126.8141,
-      capacity: 200,
-      operating_hours: { weekday: "11:30-19:00", weekend: "closed" },
-      features: { buffet_style: true, average_price: 8000, average_processing_time: 20 },
-      congestion_logs: [{ congestion_level: 0.45, current_count: 90, timestamp: new Date().toISOString() }]
-    },
-    {
-      id: "f1000000-0000-0000-0000-000000000003",
-      name: "단지내 중식당 화성",
-      type: "cafeteria",
-      latitude: 37.3215,
-      longitude: 126.8098,
+      latitude: 36.1198,
+      longitude: 128.3471,
       capacity: 80,
-      operating_hours: { weekday: "11:00-21:00", weekend: "11:00-15:00" },
-      features: { has_delivery: true, average_price: 9000, average_processing_time: 20 },
-      congestion_logs: [{ congestion_level: 0.20, current_count: 16, timestamp: new Date().toISOString() }]
+      operating_hours: { weekday: "11:00-20:00", weekend: "11:00-14:00" },
+      features: { has_vegetarian: false, average_price: 7500, average_processing_time: 20 },
+      congestion_logs: [{ congestion_level: 0.13, current_count: 10, timestamp: new Date().toISOString() }]
     },
     {
-      id: "f1000000-0000-0000-0000-000000000004",
-      name: "밀스밀 간편식 코너",
+      id: "16f9231c-d910-41b4-a8f7-862fb05d247d",
+      name: "공단 김밥천국",
       type: "cafeteria",
-      latitude: 37.3171,
-      longitude: 126.8152,
-      capacity: 50,
-      operating_hours: { weekday: "08:00-22:00", weekend: "09:00-18:00" },
-      features: { sandwich_bar: true, average_price: 5500, average_processing_time: 15 },
-      congestion_logs: [{ congestion_level: 0.15, current_count: 7, timestamp: new Date().toISOString() }]
+      latitude: 36.1185,
+      longitude: 128.3489,
+      capacity: 60,
+      operating_hours: { weekday: "11:00-20:00", weekend: "11:00-14:00" },
+      features: { has_vegetarian: false, average_price: 7500, average_processing_time: 20 },
+      congestion_logs: [{ congestion_level: 0.25, current_count: 15, timestamp: new Date().toISOString() }]
     },
     {
-      id: "f1000000-0000-0000-0000-000000000005",
-      name: "산단 남부 한식뷔페",
-      type: "cafeteria",
-      latitude: 37.3230,
-      longitude: 126.8120,
-      capacity: 180,
-      operating_hours: { weekday: "11:00-18:30", weekend: "closed" },
-      features: { buffet_style: true, average_price: 7000, average_processing_time: 20 },
-      congestion_logs: [{ congestion_level: 0.75, current_count: 135, timestamp: new Date().toISOString() }]
-    },
-    {
-      id: "f2000000-0000-0000-0000-000000000001",
-      name: "중앙 주차타워 A동",
+      id: "17ea5fc4-4810-4b1e-9853-852dffc809f6",
+      name: "삼성전자 구미 정문 주차장",
       type: "parking",
-      latitude: 37.3195,
-      longitude: 126.8130,
-      capacity: 400,
+      latitude: 36.1149,
+      longitude: 128.3528,
+      capacity: 800,
       operating_hours: { "24_7": true },
-      features: { has_ev_charger: true, indoor: true, average_processing_time: 5 },
-      congestion_logs: [{ congestion_level: 0.90, current_count: 360, timestamp: new Date().toISOString() }]
+      features: { has_ev_charger: true, indoor: false, average_processing_time: 5 },
+      congestion_logs: [{ congestion_level: 0.24, current_count: 192, timestamp: new Date().toISOString() }]
     },
     {
-      id: "f2000000-0000-0000-0000-000000000002",
-      name: "지상 남부 주차장",
+      id: "96769f68-3aba-4491-a7b9-000e330f8271",
+      name: "공단동 공영주차장",
       type: "parking",
-      latitude: 37.3242,
-      longitude: 126.8105,
+      latitude: 36.1201,
+      longitude: 128.3493,
       capacity: 250,
       operating_hours: { "24_7": true },
-      features: { has_ev_charger: false, indoor: false, average_processing_time: 5 },
-      congestion_logs: [{ congestion_level: 0.35, current_count: 87, timestamp: new Date().toISOString() }]
+      features: { has_ev_charger: true, indoor: false, average_processing_time: 5 },
+      congestion_logs: [{ congestion_level: 0.12, current_count: 30, timestamp: new Date().toISOString() }]
     },
     {
-      id: "f2000000-0000-0000-0000-000000000003",
-      name: "서부 복합주차장 B",
-      type: "parking",
-      latitude: 37.3160,
-      longitude: 126.8085,
-      capacity: 300,
+      id: "e9e889c3-70c6-43c1-8930-c7183807e5ea",
+      name: "구미상공회의소 컨퍼런스룸",
+      type: "meeting_room",
+      latitude: 36.1167,
+      longitude: 128.3445,
+      capacity: 120,
+      operating_hours: { weekday: "09:00-18:00", weekend: "closed" },
+      features: { has_beam_projector: true, has_video_conf: false, average_processing_time: 10 },
+      congestion_logs: [{ congestion_level: 0.17, current_count: 20, timestamp: new Date().toISOString() }]
+    },
+    {
+      id: "36b3342e-767a-4766-80fc-650546887e1c",
+      name: "산단공 구미지사 회의실 A",
+      type: "meeting_room",
+      latitude: 36.1198,
+      longitude: 128.3478,
+      capacity: 30,
+      operating_hours: { weekday: "09:00-18:00", weekend: "closed" },
+      features: { has_beam_projector: true, has_video_conf: false, average_processing_time: 10 },
+      congestion_logs: [{ congestion_level: 0.26, current_count: 7, timestamp: new Date().toISOString() }]
+    },
+    {
+      id: "d7bdfff0-9422-4eda-8a80-3039497a24cd",
+      name: "LG디스플레이 물류센터 1번",
+      type: "loading_dock",
+      latitude: 36.1256,
+      longitude: 128.3645,
+      capacity: 8,
       operating_hours: { "24_7": true },
-      features: { has_ev_charger: true, indoor: true, average_processing_time: 5 },
-      congestion_logs: [{ congestion_level: 0.10, current_count: 30, timestamp: new Date().toISOString() }]
+      features: { max_tonnage: 15, has_forklift: true, average_processing_time: 30 },
+      congestion_logs: [{ congestion_level: 0.13, current_count: 1, timestamp: new Date().toISOString() }]
     }
   ];
 
@@ -447,7 +439,9 @@ function RecommendContent() {
         .update({ preferred_categories: selectedOnboardingCats })
         .eq("id", userId);
 
-      if (error) throw error;
+      if (error) {
+        console.warn("Supabase user update skipped/failed (common in mock session):", error);
+      }
 
       setShowOnboarding(false);
       setToast("선호 정보가 등록되었습니다! 맞춤 추천을 계산합니다.");
@@ -458,8 +452,34 @@ function RecommendContent() {
       const recommendationsList = await getRecommendations(facilityId, { lat, lng });
       setRecommendations(recommendationsList);
     } catch (err) {
-      console.error("Error during onboarding:", err);
-      alert("선호 설정 저장 중 문제가 발생했습니다.");
+      console.warn("Error during onboarding fetch fallback:", err);
+      // Fallback: If FastAPI recommend API fails, load mock recommendations
+      const fallbacks: RecommendationResponse[] = MOCK_SEED_FACILITIES
+        .filter(f => f.id !== facilityId && f.type === (originalFacility?.type || "cafeteria"))
+        .slice(0, 3)
+        .map((f, i) => ({
+          recommendationId: `mock-rec-id-${i}`,
+          facility: {
+            id: f.id,
+            name: f.name,
+            type: f.type,
+            latitude: f.latitude,
+            longitude: f.longitude,
+            capacity: f.capacity,
+            operatingHours: f.operating_hours,
+            features: f.features
+          },
+          tttvScore: 0.85 - (i * 0.1),
+          breakdown: {
+            preference: 0.9 - (i * 0.15),
+            waitTime: 5 + (i * 3),
+            travelTime: 2.5 + i,
+            incentive: 0.2
+          },
+          distanceM: 120 + (i * 35)
+        }));
+      setRecommendations(fallbacks);
+      setShowOnboarding(false);
     } finally {
       setIsOnboardingSubmitting(false);
       setLoadingRecommendations(false);
@@ -468,8 +488,12 @@ function RecommendContent() {
 
   // CTA Click: Accept Alternative
   const handleAccept = async (rec: RecommendationResponse) => {
+    // 팝업 차단 방지: 동기적 흐름 내에서 빈 창을 즉시 오픈
+    const newWindow = window.open("about:blank", "_blank");
+    
     try {
       setToast("선택 경로 수락 완료! 안내를 시작합니다.");
+      
       // 1. Submit feedback accepted to FastAPI
       await submitFeedback(rec.recommendationId, "accepted");
 
@@ -481,13 +505,24 @@ function RecommendContent() {
 
       setToast(`${greeting} 다음 추천이 더 정확해집니다 🎯`);
 
-      // 3. Open Kakao Maps Directions in a new tab
+      // 3. Open Kakao Maps Directions in the pre-opened tab
       const destUrl = `https://map.kakao.com/link/to/${encodeURIComponent(rec.facility.name)},${rec.facility.latitude},${rec.facility.longitude}`;
-      setTimeout(() => {
-        window.open(destUrl, "_blank");
-      }, 1000);
+      
+      if (newWindow) {
+        newWindow.location.href = destUrl;
+      } else {
+        // 새 창 열기에 실패한 경우 현재 창에서 이동
+        window.location.href = destUrl;
+      }
     } catch (err) {
       console.error("Error submitting accepted feedback:", err);
+      // 에러 발생 시에도 빈 창이 덩그러니 남지 않도록 목적지로 보냄
+      const destUrl = `https://map.kakao.com/link/to/${encodeURIComponent(rec.facility.name)},${rec.facility.latitude},${rec.facility.longitude}`;
+      if (newWindow) {
+        newWindow.location.href = destUrl;
+      } else {
+        window.location.href = destUrl;
+      }
     }
   };
 

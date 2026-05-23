@@ -156,41 +156,48 @@ const MOCK_SEED_FACILITIES = [
 export default async function WorkerMapPage() {
   const supabase = getSupabaseServerClient();
   let facilitiesData: any[] = [];
+  let latestLogsMap: Record<string, any> = {};
 
   try {
-    const { data: facilities, error } = await supabase
+    // 1) 모든 시설 조회 (congestion_logs 조인 없이)
+    const { data: facilities, error: facilityError } = await supabase
       .from("facilities")
-      .select(`
-        id,
-        name,
-        type,
-        latitude,
-        longitude,
-        capacity,
-        operating_hours,
-        features,
-        congestion_logs (
-          congestion_level,
-          current_count,
-          timestamp
-        )
-      `)
-      .order("timestamp", { foreignTable: "congestion_logs", ascending: false })
-      .limit(1, { foreignTable: "congestion_logs" });
+      .select("id, name, type, latitude, longitude, capacity, operating_hours, features")
+      .order("name", { ascending: true });
 
-    if (error) {
-      console.warn("Supabase query returned error, using fallback seed facilities:", error);
+    if (facilityError) {
+      console.warn("Supabase facilities query error, using fallback:", facilityError);
+      facilitiesData = MOCK_SEED_FACILITIES;
+    } else if (!facilities || facilities.length === 0) {
+      console.warn("No facilities returned from Supabase, using fallback.");
       facilitiesData = MOCK_SEED_FACILITIES;
     } else {
-      facilitiesData = facilities && facilities.length > 0 ? facilities : MOCK_SEED_FACILITIES;
+      facilitiesData = facilities;
+
+      // 2) 각 시설의 최신 congestion_log 조회
+      const { data: logs } = await supabase
+        .from("congestion_logs")
+        .select("facility_id, congestion_level, current_count, timestamp")
+        .order("timestamp", { ascending: false });
+
+      if (logs && logs.length > 0) {
+        // facility_id 기준으로 최신 로그 1개씩만 유지
+        for (const log of logs) {
+          if (!latestLogsMap[log.facility_id]) {
+            latestLogsMap[log.facility_id] = log;
+          }
+        }
+      }
     }
   } catch (err) {
     console.warn("Failed to connect to Supabase, falling back to mock seed facilities:", err);
     facilitiesData = MOCK_SEED_FACILITIES;
   }
 
+
   const initialFacilities: FacilityWithCongestion[] = facilitiesData.map((f: any) => {
-    const latestLog = f.congestion_logs && f.congestion_logs[0];
+    // Supabase에서 조회한 경우 latestLogsMap에 존재, mock의 경우 f.congestion_logs에 존재
+    const latestLog = latestLogsMap[f.id] || (f.congestion_logs && f.congestion_logs[0]);
     return {
       id: f.id,
       name: f.name,

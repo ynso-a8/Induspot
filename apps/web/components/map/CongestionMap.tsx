@@ -72,10 +72,15 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
 
   // Filters State
   const [filterType, setFilterType] = useState<string>("all");
-  const [onlyCongested, setOnlyCongested] = useState<boolean>(false);
+  const [onlyRelaxed, setOnlyRelaxed] = useState<boolean>(false);
 
   // Location State
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Sync state with updated initialFacilities from SSR
+  useEffect(() => {
+    setFacilities(initialFacilities);
+  }, [initialFacilities]);
 
   // Map references
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -84,12 +89,12 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
   const markersRef = useRef<any[]>([]);
   const userMarkerRef = useRef<any>(null);
 
-  // Projection helper: maps lat/lng of Anyang industrial complex to percentage grid coords
+  // Projection helper: maps lat/lng of Gumi industrial complex to percentage grid coords
   const getCoordinatesOnGrid = (lat: number, lng: number) => {
-    const minLat = 37.3130;
-    const maxLat = 37.3270;
-    const minLng = 126.8060;
-    const maxLng = 126.8180;
+    const minLat = 36.0750;
+    const maxLat = 36.1550;
+    const minLng = 128.3350;
+    const maxLng = 128.4600;
 
     const y = 100 - ((lat - minLat) / (maxLat - minLat)) * 100;
     const x = ((lng - minLng) / (maxLng - minLng)) * 100;
@@ -104,7 +109,7 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
     if (isMock) {
       setIsSimulation(true);
       setMapLoaded(true);
-      setUserLocation({ lat: 37.3195, lng: 126.8130 });
+      setUserLocation({ lat: 36.1198, lng: 128.3471 });
       return;
     }
 
@@ -156,7 +161,7 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
     if (!mapLoaded || !mapContainerRef.current || isSimulation) return;
 
     const kakao = window.kakao;
-    const defaultCenter = new kakao.maps.LatLng(37.3980, 126.9600);
+    const defaultCenter = new kakao.maps.LatLng(36.1198, 128.3471);
 
     const mapOptions = {
       center: defaultCenter,
@@ -249,7 +254,7 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
 
     const filtered = facilities.filter((f) => {
       if (filterType !== "all" && f.type !== filterType) return false;
-      if (onlyCongested && f.congestionLevel < 0.7) return false;
+      if (onlyRelaxed && f.congestionLevel > 0.3) return false;
       return true;
     });
 
@@ -277,7 +282,7 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
 
     markersRef.current = newMarkers;
     clustererRef.current.addMarkers(newMarkers);
-  }, [facilities, filterType, onlyCongested, mapLoaded, isSimulation]);
+  }, [facilities, filterType, onlyRelaxed, mapLoaded, isSimulation]);
 
   // Supabase Realtime Subscription for congestion logs
   useEffect(() => {
@@ -380,26 +385,42 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
 
   const filteredFacilities = facilities.filter((f) => {
     if (filterType !== "all" && f.type !== filterType) return false;
-    if (onlyCongested && f.congestionLevel < 0.7) return false;
+    if (onlyRelaxed && f.congestionLevel > 0.3) return false;
     return true;
   });
 
   if (mapError) {
+    const handleSwitchToSimulation = () => {
+      setIsSimulation(true);
+      setMapLoaded(true);
+      setUserLocation({ lat: 36.1198, lng: 128.3471 });
+      setMapError(false);
+    };
+
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-[#0a0f1e] text-slate-300 p-6">
         <div className="glass-panel p-8 rounded-3xl max-w-md w-full border border-rose-500/30 text-center space-y-4">
           <div className="text-4xl text-rose-500">⚠️</div>
           <h2 className="text-xl font-bold text-slate-100">지도를 불러올 수 없습니다</h2>
-          <p className="text-sm text-slate-400 leading-relaxed">
-            Kakao Maps SDK 로드에 실패했거나 APP KEY 설정이 누락되었습니다. <br />
-            환경 변수 `NEXT_PUBLIC_KAKAO_MAPS_APP_KEY`를 확인해 주세요.
+          <p className="text-sm text-slate-400 leading-relaxed text-left">
+            <strong>원인 가능성:</strong><br />
+            1. 카카오 디벨로퍼스 콘솔의 [내 애플리케이션] &gt; [플랫폼] &gt; [Web]에 현재 접속 주소(예: <code>http://localhost:3000</code>)가 등록되어 있지 않은 경우<br />
+            2. 입력한 API 키가 올바르지 않은 경우
           </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="w-full mt-2 py-3 bg-gradient-to-r from-rose-500 to-amber-600 rounded-xl font-semibold text-sm transition-all duration-300 hover:opacity-90 shadow-lg shadow-rose-500/20"
-          >
-            다시 시도
-          </button>
+          <div className="space-y-2 pt-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full py-3 bg-gradient-to-r from-rose-500 to-amber-600 rounded-xl font-semibold text-sm transition-all duration-300 hover:opacity-90 shadow-lg shadow-rose-500/20"
+            >
+              다시 시도
+            </button>
+            <button
+              onClick={handleSwitchToSimulation}
+              className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-semibold text-sm text-slate-300 hover:text-white hover:bg-white/10 transition-all duration-200"
+            >
+              디지털 트윈 모드(시뮬레이션)로 계속하기
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -499,21 +520,21 @@ export default function CongestionMap({ initialFacilities }: CongestionMapProps)
           ))}
         </div>
 
-        {/* Congestion Toggle */}
+        {/* Relaxed Filter Toggle */}
         <button
-          onClick={() => setOnlyCongested((prev) => !prev)}
+          onClick={() => setOnlyRelaxed((prev) => !prev)}
           className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-semibold transition-all duration-250 shadow-xl bg-slate-900/85 backdrop-blur-md ${
-            onlyCongested
-              ? "border-rose-500/50 text-rose-400 shadow-rose-500/10"
+            onlyRelaxed
+              ? "border-emerald-500/50 text-emerald-400 shadow-emerald-500/10"
               : "border-white/10 text-slate-300 hover:text-white hover:bg-white/5"
           }`}
         >
           <span
             className={`w-2 h-2 rounded-full ${
-              onlyCongested ? "bg-rose-500 animate-ping" : "bg-slate-500"
+              onlyRelaxed ? "bg-emerald-500 animate-ping" : "bg-slate-500"
             }`}
           />
-          혼잡한 곳만 보기 (70%+)
+          한산한 곳만 보기 (30%-)
         </button>
       </div>
 

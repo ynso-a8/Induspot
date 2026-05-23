@@ -1,12 +1,8 @@
 -- 0. Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Supabase Auth 스키마 및 users 테이블 모킹 (로컬 빌드 및 외부 키 참조 보장용)
-CREATE SCHEMA IF NOT EXISTS auth;
-CREATE TABLE IF NOT EXISTS auth.users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email VARCHAR(255) UNIQUE
-);
+-- NOTE: auth.users is managed by Supabase and already exists in cloud.
+-- The local-only mock block has been removed.
 
 -- 1. users 테이블 (Supabase Auth 확장)
 CREATE TABLE IF NOT EXISTS public.users (
@@ -108,4 +104,4 @@ BEGIN
 END $$;
 
 ALTER PUBLICATION supabase_realtime ADD TABLE public.congestion_logs;
- Josephson -- Realtime 활성화 확인 완료
+-- Realtime 활성화 확인 완료

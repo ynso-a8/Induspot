@@ -1,24 +1,15 @@
 -- =========================================================================
--- 1. 사용자 시드 데이터 (auth.users & public.users)
+-- 1. 사용자 시드 데이터 (public.users)
 -- =========================================================================
-
--- auth.users 모킹 데이터 삽입 (기존에 없을 시에만)
-INSERT INTO auth.users (id, email) VALUES
-('a1111111-1111-1111-1111-111111111111', 'admin@indutech.com'),
-('a2222222-2222-2222-2222-222222222222', 'worker1@indutech.com'),
-('a3333333-3333-3333-3333-333333333333', 'worker2@indutech.com'),
-('a4444444-4444-4444-4444-444444444444', 'admin@spotlogis.com'),
-('a5555555-5555-5555-5555-555555555555', 'worker3@spotlogis.com')
-ON CONFLICT (id) DO NOTHING;
-
--- public.users 데이터 삽입
-INSERT INTO public.users (id, employee_id, company_name, preferred_categories, work_shift, role) VALUES
-('a1111111-1111-1111-1111-111111111111', 'IT-ADMIN-01', 'InduTech', '["cafeteria", "meeting_room"]'::jsonb, 'morning', 'admin'),
-('a2222222-2222-2222-2222-222222222222', 'IT-WORKER-01', 'InduTech', '["cafeteria", "parking"]'::jsonb, 'morning', 'worker'),
-('a3333333-3333-3333-3333-333333333333', 'IT-WORKER-02', 'InduTech', '["parking", "meeting_room"]'::jsonb, 'afternoon', 'worker'),
-('a4444444-4444-4444-4444-444444444444', 'SL-ADMIN-01', 'SpotLogis', '["loading_dock"]'::jsonb, 'morning', 'admin'),
-('a5555555-5555-5555-5555-555555555555', 'SL-WORKER-01', 'SpotLogis', '["loading_dock", "cafeteria"]'::jsonb, 'night', 'worker')
-ON CONFLICT (id) DO NOTHING;
+-- NOTE: auth.users는 Supabase Auth에서 관리하므로 직접 INSERT 불가.
+-- 테스트 사용자는 Supabase Dashboard > Authentication > Users 에서 수동 생성 후
+-- 아래 UUID를 생성된 사용자 UUID로 교체하여 public.users에 프로필을 등록합니다.
+--
+-- 예시 INSERT (사용자 생성 후 실행):
+-- INSERT INTO public.users (id, employee_id, company_name, preferred_categories, work_shift, role)
+-- VALUES
+--   ('<생성된-uuid>', 'IT-WORKER-01', 'InduTech', '["cafeteria","parking"]'::jsonb, 'morning', 'worker')
+-- ON CONFLICT (id) DO NOTHING;
 
 
 -- =========================================================================
