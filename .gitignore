@@ -16,7 +16,7 @@ __pycache__/
 .venv/
 venv/
 .pytest_cache/
-*.pyc
+*.pycgi
 
 # Environment
 .env
